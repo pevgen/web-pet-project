@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список всех issue в БД</title>
+</head>
+
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+<link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<script src="/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+<script src="/jquery/jquery.min.js"></script>
+
+<script>
+
+    $(document).on('click', 'table td input', function() {
+
+        $.ajax({
+            url: '/api/v1/issues/' + this.id,
+            type: 'DELETE',
+            success: function () {
+                alert("Successfully deleted issue : " + this.id);
+                console.log("'Deleted id=" + this.id);
+                window.location.reload()
+            },
+            error: function (result) {
+                alert("Error with delete issue: " + this.id);
+                console.log("'Error: {}", result);
+                window.location.reload()
+            }
+        });
+
+    });
+
+
+</script>
+
+<body>
+
+<h1 class="page-header">Список всех issue в БД</h1>
+
+<table class="table table-hover table-bordered">
+    <thead>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col">ID</th>
+        <th scope="col">Key</th>
+        <th scope="col">Type</th>
+        <th scope="col">Summary</th>
+        <th scope="col">Created</th>
+        <th scope="col">Start Process Init</th>
+        <th scope="col">Start Process Update</th>
+        <th scope="col">To Test Init</th>
+        <th scope="col">Testing Init</th>
+        <th scope="col">Resolved</th>
+        <th scope="col">Updated</th>
+        <th scope="col">StoryPoint</th>
+        <th scope="col">CycleTime (Days)</th>
+        <th scope="col">LeadTime (Days)</th>
+        <th scope="col">WaitingTest (Days)</th>
+        <th scope="col">Testing (Days)</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+<script>
+
+
+    (function () {
+
+        const myApi = "/api/v1/issues";
+        $.getJSON(myApi, function (json) {
+            const dtFormatter =
+                new Intl.DateTimeFormat(
+                    'ru-RU',
+                    {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: 'numeric'
+                    });
+            const numsFormat =
+                new Intl.NumberFormat(
+                    'ru-RU',
+                    {
+                        minimumFractionDigits: 2
+                    });
+
+            var tr = ""
+            $.each( json, function(key,val) {
+                tr = $('<tr/>');
+                $('.table').append(tr);
+                tr.append("<td>" + val.issueId + "</td>");
+                tr.append("<td>" + val.issueKey + "</td>");
+                tr.append("<td>" + val.issueType + "</td>");
+                tr.append("<td>" + val.summary + "</td>");
+                tr.append("<td>" + key + "</td>");
+            })
+            //
+            //     tr.append("<td>" + json.issueList[i].summary + "</td>");
+            //     tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].created)) + "</td>");
+            //     tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].startProcessInit)) + "</td>");
+            //     tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].startProcessUpdate)) + "</td>");
+            //     if (json.issueList[i].toTestInit != null) {
+            //         tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].toTestInit)) + "</td>");
+            //     } else {
+            //         tr.append("<td/>");
+            //     }
+            //     if (json.issueList[i].testingInit != null) {
+            //         tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].testingInit)) + "</td>");
+            //     } else {
+            //         tr.append("<td/>");
+            //     }
+            //     tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].resolved)) + "</td>");
+            //     tr.append("<td>" + dtFormatter.format(new Date(json.issueList[i].updated)) + "</td>");
+            //     if (json.issueList[i].storyPoints != null) {
+            //         tr.append("<td>" + json.issueList[i].storyPoints + "</td>");
+            //     } else {
+            //         tr.append("<td/>");
+            //     }
+            //     tr.append("<td>" + numsFormat.format(json.issueList[i].cycleDays) + "</td>");
+            //     tr.append("<td>" + numsFormat.format(json.issueList[i].leadDays) + "</td>");
+            //     if (json.issueList[i].waitingTestDays != null) {
+            //         tr.append("<td>" + numsFormat.format(json.issueList[i].waitingTestDays) + "</td>");
+            //     } else {
+            //         tr.append("<td/>");
+            //     }
+            //     if (json.issueList[i].testingDays != null) {
+            //         tr.append("<td>" + numsFormat.format(json.issueList[i].testingDays) + "</td>");
+            //     } else {
+            //         tr.append("<td/>");
+            //     }
+            //     $('.table').append(tr);
+            // }
+            // tr = $('<tr/>');
+            // tr.append("<td colspan='12'/>");
+            // tr.append("<td class='fw-bold'>" + "Min" + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.cycleDaysTotal.min) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.leadDaysTotal.min) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.waitingTestDaysTotal.min) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.testingDaysTotal.min) + "</td>");
+            // $('.table').append(tr);
+            // tr = $('<tr/>');
+            // tr.append("<td colspan='12'/>");
+            // tr.append("<td class='fw-bold'>" + "Max" + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.cycleDaysTotal.max) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.leadDaysTotal.max) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.waitingTestDaysTotal.max) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.testingDaysTotal.max) + "</td>");
+            // $('.table').append(tr);
+            // tr = $('<tr/>');
+            // tr.append("<td colspan='12'/>");
+            // tr.append("<td class='fw-bold'>" + "Среднее" + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.cycleDaysTotal.avg) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.leadDaysTotal.avg) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.waitingTestDaysTotal.avg) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.testingDaysTotal.avg) + "</td>");
+            // $('.table').append(tr);
+            // tr = $('<tr/>');
+            // tr.append("<td colspan='12'/>");
+            // tr.append("<td class='fw-bold'>" + "Медиана" + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.cycleDaysTotal.median) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.leadDaysTotal.median) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.waitingTestDaysTotal.median) + "</td>");
+            // tr.append("<td class='fw-bold'>" + numsFormat.format(json.testingDaysTotal.median) + "</td>");
+            // $('.table').append(tr);
+
+        })
+    }());
+</script>
+
+<p><a href="/api/v1/issues/files/csv" class="link-underline-primary">Скачать как csv-файл</a></p>
+
+</body>
+</html>

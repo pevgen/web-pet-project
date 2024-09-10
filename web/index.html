@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>ReportApp</title>
+</head>
+
+
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+<link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet"  type="text/css"/>
+<script src="/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+<script src="/jquery/jquery.min.js"></script>
+
+
+<script>
+    function deleteAll() {
+        $.ajax({
+            url: '/api/v1/issues',
+            type: 'DELETE',
+            success: function (result) {
+                console.log("'Delete ALL' Request is Success. {}", result);
+                $( "p" ).append( "'Delete ALL' Request is Success." );
+            },
+            error: function (result) {
+                console.log("'Error: {}", result);
+            }
+
+        });
+    }
+</script>
+
+<body>
+
+<p><a href="/issuesRest.html" class="link-underline-primary">Все issue в БД</a></p>
+<p><a href="/issuesLoad.html" class="link-underline-primary">Загрузка данных в БД из CSV</a></p>
+<hr/>
+<p style = "color : red"> </p>
+<p><a href="" class="link-underline-primary" onclick="deleteAll()">Удалить все записи из БД</a></p>
+
+</body>
+</html>
