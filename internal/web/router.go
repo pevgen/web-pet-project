@@ -1,42 +1,65 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/gocraft/web"
+	"log"
 	"net/http"
+	"path"
 	"web-pet-project/internal/services"
 )
 
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "About Page")
+type Context struct {
+	HelloCount int
 }
 
-func getIssuesHandler(w http.ResponseWriter, r *http.Request) {
+func (c *Context) SetHelloCount(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
+	c.HelloCount = 3
+	next(rw, req)
+}
 
-	issueList := services.GetIssueList()
-	js, err := json.Marshal(issueList)
+func (c *Context) csvFileFromIssuesHandler(w web.ResponseWriter, r *web.Request) {
+	// Handlers should read before writing
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=file1")
+	// should set up after headers
+	w.WriteHeader(http.StatusOK)
+
+	bytes, err := services.GetIssueListAsCsv()
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-
+	w.Write(bytes)
 }
 
-func StartRoutes() {
+func (c *Context) getIssuesHandler(w web.ResponseWriter, r *web.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	bytes, err := services.GetIssueListAsJson()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(bytes)
+
+}
+func StartRoutesWithLib() {
 
 	port := ":8080"
 
-	http.Handle("/", http.FileServer(http.Dir("./web")))
-	// TODO what is StripPrefix and the difference ?
-	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
-	//http.Handle("/assets/", http.StripPrefix("/", http.FileServer(http.Dir("assets"))))
-
-	//http.HandleFunc("/", helloHandler)
-	http.HandleFunc("/about", aboutHandler)
-	http.HandleFunc("/api/v1/issues", getIssuesHandler)
+	router := web.New(Context{}). // Create your router
+					Middleware(web.LoggerMiddleware).     // Use some included middleware
+					Middleware(web.ShowErrorsMiddleware). // ...
+					Middleware(web.StaticMiddleware(path.Join("./web"))).
+					Middleware(web.StaticMiddleware(path.Join("./assets"))).
+					Middleware((*Context).SetHelloCount). // Your own middleware!
+					Get("/api/v1/issues", (*Context).getIssuesHandler).
+					Get("/api/v1/issues/files/csv", (*Context).csvFileFromIssuesHandler)
 
 	fmt.Println("Web server started!")
-	http.ListenAndServe(port, nil)
+
+	log.Fatal(http.ListenAndServe(port, router))
 }

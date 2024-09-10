@@ -3,31 +3,26 @@ package services
 import (
 	"bytes"
 	"encoding/csv"
+	"encoding/json"
 	"log"
+
+	"web-pet-project/internal/dbms/postgres"
 )
 
-type Issue struct {
-	IssueId   string `json:"issueId"`
-	IssueKey  string `json:"issueKey"`
-	IssueType string `json:"issueType"`
-	Summary   string `json:"summary"`
-}
+// var repo memory.IssuesRepository
+var repo postgres.IssuesRepository
 
-func GetIssueList() []Issue {
-	var issues = make([]Issue, 2)
-	issues[0] = Issue{"1", "k1", "type 1", "Рус"}
-	issues[1] = Issue{"2", "k2", "type 2", "Рус 2"}
-	//issues = append(issues, Issue{"1", "k1", "type 1", "Рус"})
-	//issues = append(issues, Issue{"2", "k2", "type 2", "Рус 2"})
-	return issues
-}
+func GetIssueListAsCsv() ([]byte, error) {
 
-func GetIssueListAsCsvBytes() []byte {
 	var buf bytes.Buffer
 
 	csvW := csv.NewWriter(&buf)
 
-	issueList := GetIssueList()
+	issueList, err := repo.GetAllIssues()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	csvW.Write(
 		[]string{issueList[0].IssueId, issueList[0].IssueType, issueList[0].IssueKey, issueList[0].Summary})
 	for _, issue := range issueList {
@@ -42,5 +37,16 @@ func GetIssueListAsCsvBytes() []byte {
 		log.Fatal(err)
 	}
 
-	return buf.Bytes()
+	return buf.Bytes(), nil
+}
+
+func GetIssueListAsJson() ([]byte, error) {
+
+	issueList, _ := repo.GetAllIssues()
+	bytes, err := json.Marshal(issueList)
+	if err != nil {
+		return nil, err
+
+	}
+	return bytes, nil
 }

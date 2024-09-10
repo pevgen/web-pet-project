@@ -1,10 +1,14 @@
-package rdbms
+package postgres
 
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"web-pet-project/internal/dbms"
 )
+
+type IssuesRepository struct {
+}
 
 // urlExample := "postgres://username:password@localhost:5432/database_name"
 //
@@ -18,8 +22,7 @@ const (
 )
 
 // var db *sql.DB
-
-func WorkWithDb() {
+func (repo *IssuesRepository) GetAllIssues() ([]dbms.Issue, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
@@ -33,21 +36,27 @@ func WorkWithDb() {
 
 	fmt.Println("Successfully connected!")
 
-	rows, err := db.Query("SELECT title, artist FROM album WHERE title = $1", "Jeru")
+	//rows, err := db.Query("SELECT title, artist FROM album WHERE title = $1", "Jeru")
+	count := 0
+	rows, err := db.Query("SELECT issue_id, issue_key,issue_type,summary FROM issues")
 	CheckError(err)
 
+	result := []dbms.Issue{}
 	defer rows.Close()
 	for rows.Next() {
-		var title string
-		var artist string
-
-		err = rows.Scan(&title, &artist)
+		count++
+		var issueId, issueKey, issueType, summary string
+		err = rows.Scan(&issueId, &issueKey, &issueType, &summary)
+		result = append(result,
+			dbms.Issue{IssueId: issueId, IssueKey: issueKey, IssueType: issueType, Summary: summary})
 		CheckError(err)
-
-		fmt.Println(title, artist)
 	}
 
+	fmt.Printf("Load %d rows from DB", count)
+
 	CheckError(err)
+
+	return result, nil
 }
 
 func CheckError(err error) {
