@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"web-pet-project/internal/dbms/postgres"
+
 	"web-pet-project/internal/services"
 )
 
@@ -13,19 +15,23 @@ type Context struct {
 	HelloCount int
 }
 
+// var issueService = services.NewIssuesService(memory.NewIssuesRepository())
+var issueService = services.NewIssuesService(postgres.NewIssueRepository())
+
 func (c *Context) SetHelloCount(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
 	c.HelloCount = 3
 	next(rw, req)
 }
 
 func (c *Context) csvFileFromIssuesHandler(w web.ResponseWriter, r *web.Request) {
+
 	// Handlers should read before writing
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", "attachment; filename=file1")
 	// should set up after headers
 	w.WriteHeader(http.StatusOK)
 
-	bytes, err := services.GetIssueListAsCsv()
+	bytes, err := issueService.GetIssueListAsCsv()
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -38,7 +44,7 @@ func (c *Context) getIssuesHandler(w web.ResponseWriter, r *web.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	bytes, err := services.GetIssueListAsJson()
+	bytes, err := issueService.GetIssueListAsJson()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

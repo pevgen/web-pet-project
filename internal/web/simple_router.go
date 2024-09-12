@@ -3,8 +3,11 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"web-pet-project/internal/dbms/memory"
 	"web-pet-project/internal/services"
 )
+
+var service = services.NewIssuesService(memory.NewIssuesRepository())
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "About Page")
@@ -12,7 +15,7 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 
 func getIssuesHandler(w http.ResponseWriter, r *http.Request) {
 
-	fileBytes, err := services.GetIssueListAsCsv()
+	fileBytes, err := service.GetIssueListAsCsv()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

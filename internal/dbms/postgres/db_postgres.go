@@ -8,6 +8,14 @@ import (
 )
 
 type IssuesRepository struct {
+	psqlInfo string
+}
+
+func NewIssueRepository() dbms.IssuesRepository {
+	return &IssuesRepository{
+		psqlInfo: fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+			host, port, user, password, dbname),
+	}
 }
 
 // urlExample := "postgres://username:password@localhost:5432/database_name"
@@ -23,9 +31,7 @@ const (
 
 // var db *sql.DB
 func (repo *IssuesRepository) GetAllIssues() ([]dbms.Issue, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := sql.Open("postgres", repo.psqlInfo)
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +42,6 @@ func (repo *IssuesRepository) GetAllIssues() ([]dbms.Issue, error) {
 
 	fmt.Println("Successfully connected!")
 
-	//rows, err := db.Query("SELECT title, artist FROM album WHERE title = $1", "Jeru")
 	count := 0
 	rows, err := db.Query("SELECT issue_id, issue_key,issue_type,summary FROM issues")
 	CheckError(err)

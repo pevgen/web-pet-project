@@ -5,20 +5,26 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"log"
-
-	"web-pet-project/internal/dbms/postgres"
+	"web-pet-project/internal/dbms"
 )
 
-// var repo memory.IssuesRepository
-var repo postgres.IssuesRepository
+type IssuesService struct {
+	repo dbms.IssuesRepository
+}
 
-func GetIssueListAsCsv() ([]byte, error) {
+func NewIssuesService(repo dbms.IssuesRepository) IssuesService {
+	return IssuesService{
+		repo: repo,
+	}
+}
+
+func (service *IssuesService) GetIssueListAsCsv() ([]byte, error) {
 
 	var buf bytes.Buffer
 
 	csvW := csv.NewWriter(&buf)
 
-	issueList, err := repo.GetAllIssues()
+	issueList, err := service.repo.GetAllIssues()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,9 +46,9 @@ func GetIssueListAsCsv() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func GetIssueListAsJson() ([]byte, error) {
+func (service *IssuesService) GetIssueListAsJson() ([]byte, error) {
 
-	issueList, _ := repo.GetAllIssues()
+	issueList, _ := service.repo.GetAllIssues()
 	bytes, err := json.Marshal(issueList)
 	if err != nil {
 		return nil, err

@@ -2,10 +2,14 @@ package memory
 
 import "web-pet-project/internal/dbms"
 
-type IssuesRepository struct {
+type issuesRepository struct {
 }
 
-func (mr *IssuesRepository) GetAllIssues() ([]dbms.Issue, error) {
+func NewIssuesRepository() dbms.IssuesRepository {
+	return &issuesRepository{}
+}
+
+func (repo *issuesRepository) GetAllIssues() ([]dbms.Issue, error) {
 	var issues = make([]dbms.Issue, 2)
 	issues[0] = dbms.Issue{"1", "k1", "type 1", "Рус"}
 	issues[1] = dbms.Issue{"2", "k2", "type 2", "Рус 2"}
