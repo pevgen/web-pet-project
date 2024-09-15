@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres:16.1
+    environment:  # create user and db
+      POSTGRES_DB: reportapp
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: myuser
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./reportapp-pg-data-host:/var/lib/postgresql/data
+      - ./pg/scripts:/docker-entrypoint-initdb.d
+
+#  mongo:
+#    image: mongo
+#    restart: always
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: admin
+#      MONGO_INITDB_ROOT_PASSWORD: secret
+#    ports:
+#      - 27017:27017
+#    volumes:
+#      - ./reportapp-mongodb-data-host:/data/db
+#
+#  mongo-express:
+#    image: mongo-express
+#    restart: always
+#    ports:
+#      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+#      ME_CONFIG_MONGODB_URL: mongodb://admin:secret@mongo:27017/
