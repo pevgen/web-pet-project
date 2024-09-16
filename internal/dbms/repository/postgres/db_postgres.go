@@ -4,14 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"web-pet-project/internal/dbms"
+	"strconv"
+	"web-pet-project/internal/dbms/model"
+	"web-pet-project/internal/dbms/repository"
 )
 
 type IssuesRepository struct {
 	psqlInfo string
 }
 
-func NewIssueRepository() dbms.IssuesRepository {
+func NewIssueRepository() repository.IssuesRepository {
 	return &IssuesRepository{
 		psqlInfo: fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 			host, port, user, password, dbname),
@@ -30,7 +32,7 @@ const (
 )
 
 // var db *sql.DB
-func (repo *IssuesRepository) GetAllIssues() ([]dbms.Issue, error) {
+func (repo *IssuesRepository) GetAllIssues() ([]model.Issue, error) {
 	db, err := sql.Open("postgres", repo.psqlInfo)
 	if err != nil {
 		panic(err)
@@ -46,14 +48,15 @@ func (repo *IssuesRepository) GetAllIssues() ([]dbms.Issue, error) {
 	rows, err := db.Query("SELECT issue_id, issue_key,issue_type,summary FROM issues")
 	CheckError(err)
 
-	result := []dbms.Issue{}
+	result := []model.Issue{}
 	defer rows.Close()
 	for rows.Next() {
 		count++
 		var issueId, issueKey, issueType, summary string
 		err = rows.Scan(&issueId, &issueKey, &issueType, &summary)
+		ii, _ := strconv.Atoi(issueType)
 		result = append(result,
-			dbms.Issue{IssueId: issueId, IssueKey: issueKey, IssueType: issueType, Summary: summary})
+			model.Issue{IssueId: issueId, IssueKey: issueKey, IssueType: ii, Summary: summary})
 		CheckError(err)
 	}
 

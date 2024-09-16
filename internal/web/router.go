@@ -6,8 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path"
-	"web-pet-project/internal/dbms/postgres"
-
+	"web-pet-project/internal/dbms/repository/mongodb"
 	"web-pet-project/internal/services"
 )
 
@@ -16,7 +15,8 @@ type Context struct {
 }
 
 // var issueService = services.NewIssuesService(memory.NewIssuesRepository())
-var issueService = services.NewIssuesService(postgres.NewIssueRepository())
+// var issueService = services.NewIssuesService(postgres.NewIssueRepository())
+var issueService = services.NewIssuesService(mongodb.NewIssuesRepository())
 
 func (c *Context) SetHelloCount(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
 	c.HelloCount = 3

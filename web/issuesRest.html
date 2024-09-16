@@ -93,11 +93,12 @@
             $.each( json, function(key,val) {
                 tr = $('<tr/>');
                 $('.table').append(tr);
+                tr.append("<td>" + key + "</td>");
                 tr.append("<td>" + val.issueId + "</td>");
                 tr.append("<td>" + val.issueKey + "</td>");
                 tr.append("<td>" + val.issueType + "</td>");
                 tr.append("<td>" + val.summary + "</td>");
-                tr.append("<td>" + key + "</td>");
+
             })
             //
             //     tr.append("<td>" + json.issueList[i].summary + "</td>");

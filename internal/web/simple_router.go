@@ -3,7 +3,7 @@ package web
 import (
 	"fmt"
 	"net/http"
-	"web-pet-project/internal/dbms/memory"
+	"web-pet-project/internal/dbms/repository/memory"
 	"web-pet-project/internal/services"
 )
 

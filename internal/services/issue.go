@@ -5,14 +5,15 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"log"
-	"web-pet-project/internal/dbms"
+	"strconv"
+	"web-pet-project/internal/dbms/repository"
 )
 
 type IssuesService struct {
-	repo dbms.IssuesRepository
+	repo repository.IssuesRepository
 }
 
-func NewIssuesService(repo dbms.IssuesRepository) IssuesService {
+func NewIssuesService(repo repository.IssuesRepository) IssuesService {
 	return IssuesService{
 		repo: repo,
 	}
@@ -30,10 +31,10 @@ func (service *IssuesService) GetIssueListAsCsv() ([]byte, error) {
 	}
 
 	csvW.Write(
-		[]string{issueList[0].IssueId, issueList[0].IssueType, issueList[0].IssueKey, issueList[0].Summary})
+		[]string{issueList[0].IssueId, strconv.Itoa(issueList[0].IssueType), issueList[0].IssueKey, issueList[0].Summary})
 	for _, issue := range issueList {
 		if err := csvW.Write(
-			[]string{issue.IssueId, issue.IssueType, issue.IssueKey, issue.Summary}); err != nil {
+			[]string{issue.IssueId, strconv.Itoa(issue.IssueType), issue.IssueKey, issue.Summary}); err != nil {
 			log.Fatalln("error writing record to csv:", err)
 		}
 	}

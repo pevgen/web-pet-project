@@ -1,0 +1,20 @@
+[
+  {
+    "_id": {
+      "$oid": "66e2f581dd29d3f554bfb69b"
+    },
+    "issueId": "M-123",
+    "issueKey": "Key1",
+    "issueType": 1,
+    "summary": "Bla-bla-bla"
+  },
+  {
+    "_id": {
+      "$oid": "66e2fae6c73feb3130fd6596"
+    },
+    "issueId": "N-222",
+    "issueKey": "Key2",
+    "issueType": 2,
+    "summary": "Bla-bla-bla-222"
+  }
+]
