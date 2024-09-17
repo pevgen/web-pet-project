@@ -14,8 +14,8 @@ func TestGetIssueList(t *testing.T) {
 	}{
 		{name: "Check content",
 			want: []model.Issue{
-				{"1", "k1", "type 1", "Рус"},
-				{"2", "k2", "type 2", "Рус 2"},
+				{"1", "k1", 1, "Рус"},
+				{"2", "k2", 2, "Рус 2"},
 			},
 		},
 	}
