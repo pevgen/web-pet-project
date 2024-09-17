@@ -7,8 +7,9 @@ import (
 )
 
 type ConfigurationYaml struct {
-	Enabled bool
-	Path    string
+	Enabled bool     `yaml:"enabled"`
+	Path    string   `yaml:"path"`
+	Items   []string `yaml:"items"`
 }
 
 func ReadYaml(configName string) ConfigurationYaml {
