@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"strconv"
+	"web-pet-project/internal/config"
 	"web-pet-project/internal/dbms/repository/memory"
 	"web-pet-project/internal/services"
 )
@@ -53,8 +55,8 @@ func (c *Context) getIssuesHandler(w web.ResponseWriter, r *web.Request) {
 	w.Write(bytes)
 
 }
-func StartRoutesWithLib() {
-	port := ":8080"
+func StartRoutesWithLib(c config.AppConfig) {
+	port := ":" + strconv.Itoa(c.WebServer.Port)
 	router := setupRouter()
 	fmt.Println("Web server started!")
 	log.Fatal(http.ListenAndServe(port, router))

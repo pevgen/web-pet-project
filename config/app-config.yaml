@@ -1,0 +1,7 @@
+web-server:
+  port: 8080
+db:
+  postgres:
+    connect-string: cpg
+  mongodb:
+    connect-string:  mcg

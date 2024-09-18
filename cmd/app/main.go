@@ -1,13 +1,24 @@
 package main
 
-import "web-pet-project/internal/web"
+import (
+	"os"
+	"web-pet-project/internal/config"
+	"web-pet-project/internal/web"
+)
 
 func main() {
 
-	//config2.ReadJson("config/config.json")
-	//_ = config2.ReadYaml("config/config.yaml")
-	//db.WorkWithDb()
+	// Config can be set with an environment variable CONFIG_PATH
+	configPath, exists := os.LookupEnv("CONFIG_PATH")
 
-	//web.StartRoutes()
-	web.StartRoutesWithLib()
+	// If the environment variable CONFIG_PATH doesn't exist
+	// then default path is "config/app-config.yaml"
+	if !exists {
+		configPath = "config/app-config.yaml"
+	}
+
+	c := config.New(configPath)
+
+	web.StartRoutesWithLib(c)
+
 }

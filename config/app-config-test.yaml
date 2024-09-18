@@ -1,0 +1,7 @@
+web-server:
+  port: 1234
+db:
+  postgres:
+    connect-string: pgc
+  mongodb:
+    connect-string:  mgc
