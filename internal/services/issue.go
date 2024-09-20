@@ -6,33 +6,30 @@ import (
 	"encoding/json"
 	"log"
 	"strconv"
+	"sync"
+	"web-pet-project/internal/dbms/model"
 	"web-pet-project/internal/dbms/repository"
 )
 
 type IssuesService struct {
-	repo repository.IssuesRepository
+	repos []repository.IssuesRepository
 }
 
-func NewIssuesService(repo repository.IssuesRepository) IssuesService {
+func NewIssuesService(r []repository.IssuesRepository) IssuesService {
 	return IssuesService{
-		repo: repo,
+		repos: r,
 	}
 }
 
-func (service *IssuesService) GetIssueListAsCsv() ([]byte, error) {
+func (s *IssuesService) GetIssueListAsCsv() ([]byte, error) {
+
+	allIssues := parallelGetIssues(s)
 
 	var buf bytes.Buffer
-
 	csvW := csv.NewWriter(&buf)
-
-	issueList, err := service.repo.GetAllIssues()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	csvW.Write(
-		[]string{issueList[0].IssueId, strconv.Itoa(issueList[0].IssueType), issueList[0].IssueKey, issueList[0].Summary})
-	for _, issue := range issueList {
+		[]string{allIssues[0].IssueId, strconv.Itoa(allIssues[0].IssueType), allIssues[0].IssueKey, allIssues[0].Summary})
+	for _, issue := range allIssues {
 		if err := csvW.Write(
 			[]string{issue.IssueId, strconv.Itoa(issue.IssueType), issue.IssueKey, issue.Summary}); err != nil {
 			log.Fatalln("error writing record to csv:", err)
@@ -47,13 +44,34 @@ func (service *IssuesService) GetIssueListAsCsv() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (service *IssuesService) GetIssueListAsJson() ([]byte, error) {
+func (s *IssuesService) GetIssueListAsJson() ([]byte, error) {
 
-	issueList, _ := service.repo.GetAllIssues()
-	bytes, err := json.Marshal(issueList)
+	allIssues := parallelGetIssues(s)
+
+	bs, err := json.Marshal(allIssues)
 	if err != nil {
 		return nil, err
-
 	}
-	return bytes, nil
+	return bs, nil
+}
+
+func parallelGetIssues(s *IssuesService) []model.Issue {
+	var wg sync.WaitGroup
+	var allIssues []model.Issue
+	for _, v := range s.repos {
+		wg.Add(1)
+		v := v
+		go func() {
+			defer wg.Done()
+			log.Printf("Get data from %v\n", v)
+			issueList, err := v.GetAllIssues()
+			if err != nil {
+				log.Printf("Error getting data from :%v\n %v\n", v, err)
+			} else {
+				allIssues = append(allIssues, issueList...)
+			}
+		}()
+	}
+	wg.Wait()
+	return allIssues
 }

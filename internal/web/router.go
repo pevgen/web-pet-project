@@ -8,7 +8,10 @@ import (
 	"path"
 	"strconv"
 	"web-pet-project/internal/config"
+	"web-pet-project/internal/dbms/repository"
 	"web-pet-project/internal/dbms/repository/memory"
+	"web-pet-project/internal/dbms/repository/mongodb"
+	"web-pet-project/internal/dbms/repository/postgres"
 	"web-pet-project/internal/services"
 )
 
@@ -16,7 +19,7 @@ type Context struct {
 	//HelloCount int
 }
 
-var issueService = services.NewIssuesService(memory.NewIssuesRepository())
+var issueService services.IssuesService
 
 // var issueService = services.NewIssuesService(postgres.NewIssueRepository())
 //var issueService = services.NewIssuesService(mongodb.NewIssuesRepository())
@@ -25,6 +28,21 @@ var issueService = services.NewIssuesService(memory.NewIssuesRepository())
 //	c.HelloCount = 3
 //	next(rw, req)
 //}
+
+func NewRouter(cfg config.AppConfig) {
+
+	issueService = services.NewIssuesService(
+		[]repository.IssuesRepository{
+			memory.NewIssuesRepository(),
+			postgres.NewIssueRepository(cfg.Db.Postgres.ConnectString),
+			mongodb.NewIssuesRepository(cfg.Db.Mongodb.ConnectString, cfg.Db.Mongodb.DbName),
+		})
+
+	port := ":" + strconv.Itoa(cfg.WebServer.Port)
+	router := setupRouter()
+	fmt.Println("Web server started!")
+	log.Fatal(http.ListenAndServe(port, router))
+}
 
 func (c *Context) csvFileFromIssuesHandler(w web.ResponseWriter, r *web.Request) {
 
@@ -54,12 +72,6 @@ func (c *Context) getIssuesHandler(w web.ResponseWriter, r *web.Request) {
 	}
 	w.Write(bytes)
 
-}
-func StartRoutesWithLib(c config.AppConfig) {
-	port := ":" + strconv.Itoa(c.WebServer.Port)
-	router := setupRouter()
-	fmt.Println("Web server started!")
-	log.Fatal(http.ListenAndServe(port, router))
 }
 
 func setupRouter() *web.Router {

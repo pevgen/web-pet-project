@@ -42,7 +42,9 @@ func Test_issuesRepository_GetAllIssues(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			repo := NewIssuesRepository()
+			repo := NewIssuesRepository(
+				"mongodb://admin:secret@localhost:27017/reportapp?authSource=admin",
+				"reportapp")
 			got, err := repo.GetAllIssues()
 
 			if (err != nil) != tt.wantErr {

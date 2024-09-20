@@ -21,6 +21,7 @@ type PgConfig struct {
 
 type MongoConfig struct {
 	ConnectString string `yaml:"connect-string"`
+	DbName        string `yaml:"db-name"`
 }
 
 type AppConfig struct {
@@ -30,7 +31,7 @@ type AppConfig struct {
 
 func New(configPath string) AppConfig {
 
-	log.Printf("Start reading configuretion from file: %v\n", configPath)
+	log.Printf("Start reading configuration from file: %v\n", configPath)
 
 	var cfg AppConfig
 

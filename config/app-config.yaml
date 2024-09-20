@@ -2,6 +2,7 @@ web-server:
   port: 8080
 db:
   postgres:
-    connect-string: cpg
+    connect-string: host=localhost port=5432 user=myuser password=secret dbname=reportapp sslmode=disable
   mongodb:
-    connect-string:  mcg
+    connect-string: mongodb://admin:secret@localhost:27017/reportapp?authSource=admin
+    db-name: reportapp

@@ -5,3 +5,4 @@ db:
     connect-string: pgc
   mongodb:
     connect-string:  mgc
+    db-name: dbn

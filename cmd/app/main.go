@@ -19,6 +19,6 @@ func main() {
 
 	c := config.New(configPath)
 
-	web.StartRoutesWithLib(c)
+	web.NewRouter(c)
 
 }

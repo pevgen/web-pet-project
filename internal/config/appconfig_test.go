@@ -26,6 +26,7 @@ func TestNew(t *testing.T) {
 					},
 					Mongodb: MongoConfig{
 						ConnectString: "mgc",
+						DbName:        "dbn",
 					},
 				},
 			}},
