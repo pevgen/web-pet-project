@@ -21,6 +21,11 @@ func NewIssuesRepository(cs, dbn string) repository.IssuesRepository {
 	}
 }
 
+func (repo *issuesRepository) Close() {
+	// TODO
+	// CloseConnection(client, context, cancel)
+}
+
 func (repo *issuesRepository) GetAllIssues() ([]model.Issue, error) {
 	db, _, context, _, err := SetupMongoDB(repo.connectString, repo.dbName)
 	//defer CloseConnection(client, context, cancel)

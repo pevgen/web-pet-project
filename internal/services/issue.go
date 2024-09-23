@@ -15,9 +15,15 @@ type IssuesService struct {
 	repos []repository.IssuesRepository
 }
 
-func NewIssuesService(r []repository.IssuesRepository) IssuesService {
+func NewIssuesService(rs []repository.IssuesRepository) IssuesService {
 	return IssuesService{
-		repos: r,
+		repos: rs,
+	}
+}
+
+func (s *IssuesService) CloseRepos() {
+	for _, s := range s.repos {
+		s.Close()
 	}
 }
 

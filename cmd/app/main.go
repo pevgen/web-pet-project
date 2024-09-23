@@ -20,5 +20,6 @@ func main() {
 	c := config.New(configPath)
 
 	web.NewRouter(c)
+	defer web.Close()
 
 }

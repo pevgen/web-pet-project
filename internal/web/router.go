@@ -44,6 +44,10 @@ func NewRouter(cfg config.AppConfig) {
 	log.Fatal(http.ListenAndServe(port, router))
 }
 
+func Close() {
+	issueService.CloseRepos()
+}
+
 func (c *Context) csvFileFromIssuesHandler(w web.ResponseWriter, r *web.Request) {
 
 	// Handlers should read before writing

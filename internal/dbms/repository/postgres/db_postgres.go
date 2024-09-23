@@ -10,42 +10,47 @@ import (
 )
 
 type IssuesRepository struct {
-	psqlInfo string
+	db *sql.DB
 }
 
 func NewIssueRepository(uri string) repository.IssuesRepository {
+	db, err := sql.Open("postgres", uri)
+	if err != nil {
+		panic(err)
+	}
+
 	return &IssuesRepository{
-		psqlInfo: uri, //fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		//host, port, user, password, dbname),
+		db: db,
 	}
 }
 
 // urlExample := "postgres://username:password@localhost:5432/database_name"
 //
 //	urlDb := "postgresql://myuser:secret@localhost:5432/reportapp" // os.Getenv("DATABASE_URL")
-//const (
+//
+// const (
+//
 //	host     = "localhost"
 //	port     = 5432
 //	user     = "myuser"
 //	password = "secret"
 //	dbname   = "reportapp"
-//)
+//
+// )
+func (repo *IssuesRepository) Close() {
+	repo.db.Close()
+}
 
 // var db *sql.DB
 func (repo *IssuesRepository) GetAllIssues() ([]model.Issue, error) {
-	db, err := sql.Open("postgres", repo.psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
 
-	err = db.Ping()
+	err := repo.db.Ping()
 	CheckError(err)
 
 	fmt.Println("Successfully connected to Postgres!")
 
 	count := 0
-	rows, err := db.Query("SELECT issue_id, issue_key,issue_type,summary FROM issues")
+	rows, err := repo.db.Query("SELECT issue_id, issue_key,issue_type,summary FROM issues")
 	CheckError(err)
 
 	var result []model.Issue
