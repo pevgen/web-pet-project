@@ -3,7 +3,6 @@ package web
 import (
 	"fmt"
 	"github.com/gocraft/web"
-	"log"
 	"net/http"
 	"path"
 	"strconv"
@@ -29,7 +28,7 @@ var issueService services.IssuesService
 //	next(rw, req)
 //}
 
-func NewRouter(cfg config.AppConfig) {
+func NewRouter(cfg config.AppConfig) (func(), error) {
 
 	issueService = services.NewIssuesService(
 		[]repository.IssuesRepository{
@@ -40,12 +39,18 @@ func NewRouter(cfg config.AppConfig) {
 
 	port := ":" + strconv.Itoa(cfg.WebServer.Port)
 	router := setupRouter()
-	fmt.Println("Web server started!")
-	log.Fatal(http.ListenAndServe(port, router))
-}
 
-func Close() {
-	issueService.CloseRepos()
+	fmt.Println("Web server started!")
+	err := http.ListenAndServe(port, router)
+
+	cancel := func() {
+		issueService.CloseRepos()
+	}
+	if err != nil {
+		return cancel, err
+	}
+
+	return cancel, nil
 }
 
 func (c *Context) csvFileFromIssuesHandler(w web.ResponseWriter, r *web.Request) {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"web-pet-project/internal/config"
 	"web-pet-project/internal/web"
@@ -19,7 +20,10 @@ func main() {
 
 	c := config.New(configPath)
 
-	web.NewRouter(c)
-	defer web.Close()
+	cancel, err := web.NewRouter(c)
+	defer cancel()
+	if err == nil {
+		log.Fatal(err)
+	}
 
 }
