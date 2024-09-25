@@ -15,7 +15,7 @@ func TestNew(t *testing.T) {
 		want AppConfig
 	}{
 		{"Read config from file",
-			args{configPath: "../../config/app-config-test.yaml"},
+			args{configPath: "./testdata/app-config-test.yaml"},
 			AppConfig{
 				WebServer: WebServerConfig{
 					Port: 1234,
