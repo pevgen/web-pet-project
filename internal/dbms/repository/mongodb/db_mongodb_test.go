@@ -2,12 +2,11 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
+	"github.com/google/go-cmp/cmp"
 	"github.com/testcontainers/testcontainers-go/modules/mongodb"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"log"
 	"reflect"
 	"testing"
 	"web-pet-project/internal/dbms/model"
@@ -16,41 +15,46 @@ import (
 func Test_issuesRepository_GetAllIssues_tcont(t *testing.T) {
 	ctx := context.Background()
 	mongodbContainer, err := mongodb.Run(ctx, "mongo:6")
-	fmt.Println(mongodbContainer)
-	defer func() {
-		//if err := testcontainers.TerminateContainer(mongodbContainer); err != nil {
-		//	log.Printf("failed to terminate container: %s", err)
-		//}
-	}()
+	t.Log(mongodbContainer)
+
+	t.Cleanup(func() {
+		if err := mongodbContainer.Terminate(ctx); err != nil {
+			t.Fatalf("failed to terminate mongoContainer: %s", err)
+		}
+	})
+
 	if err != nil {
-		log.Printf("failed to start container: %s", err)
-		return
+		t.Fatalf("failed to start container: %s", err)
 	}
 
 	endpoint, err := mongodbContainer.ConnectionString(ctx)
 	if err != nil {
-		log.Printf("failed to get connection string: %s", err)
-		return
+		t.Fatalf("failed to get connection string: %s", err)
 	}
 
 	mongoClient, err := mongo.Connect(ctx, options.Client().ApplyURI(endpoint))
 
 	if err != nil {
-		log.Printf("failed to connect to MongoDB: %s", err)
-		return
+		t.Fatalf("failed to connect to MongoDB: %s", err)
 	}
 
 	dbNameTest := "test"
 	coll := mongoClient.Database(dbNameTest).Collection("issues")
 
-	newIssues := []interface{}{
+	issues := []interface{}{
 		model.Issue{IssueId: "id-1", IssueType: 1, IssueKey: "k1", Summary: "s1"},
 		model.Issue{IssueId: "id-2", IssueType: 2, IssueKey: "k2", Summary: "s2"},
 	}
-	_, err = coll.InsertMany(context.TODO(), newIssues)
+	_, err = coll.InsertMany(context.TODO(), issues)
+
+	// convert []interface{} to []model.Issue for comparing
+	want := make([]model.Issue, len(issues))
+	for i, issue := range issues {
+		want[i] = issue.(model.Issue)
+	}
 
 	if err != nil {
-		log.Println(err)
+		t.Fatal(err)
 	}
 
 	t.Run("mock mongo db", func(t *testing.T) {
@@ -71,9 +75,10 @@ func Test_issuesRepository_GetAllIssues_tcont(t *testing.T) {
 			return
 		}
 
-		//if !reflect.DeepEqual(got, tt.want) {
-		//	t.Errorf("GetAllIssues() got = %v, want %v", got, tt.want)
-		//}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch:\n%s", diff)
+		}
+
 	})
 
 }
